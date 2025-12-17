@@ -1,6 +1,6 @@
 import express from "express";
 import { env } from "./config/env.js";
-import db from "./models/index.js";
+import { connectDB } from "./config/dbinit.js";
 
 const app = express();
 
@@ -11,12 +11,9 @@ app.get("/", (_req, res) => {
 });
 
 const PORT = env.PORT || 5000;
-db.sequelize.sync({ alter: true }).then(() => {
-  console.log("Database synced");
+connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-}).catch((err) => {
-  console.error("Failed to sync database:", err);
 });
 
