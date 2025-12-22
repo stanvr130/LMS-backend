@@ -1,2 +1,2 @@
 #!/bin/sh
-pnpm ultracite fix && pnpm ultracite check
+pnpm ultracite fix && pnpm ultracite check --diagnostic-level warn
