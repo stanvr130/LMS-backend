@@ -2,6 +2,8 @@ import express from "express";
 import { protect } from "./middleware/auth.js";
 import adminRoutes from "./routes/admin/route.js";
 import authRoutes from "./routes/auth/route.js";
+import { globalErrorHandler } from "./middleware/errorHandler.js";
+import AppError from "./utils/AppError.js";
 
 const createApp = () => {
   const app = express();
@@ -20,6 +22,14 @@ const createApp = () => {
   app.use(protect);
 
   app.use("/api/admin", adminRoutes);
+
+  // Handle unhandled routes (404)
+  app.all("*", (req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  });
+
+  // Global Error Handler
+  app.use(globalErrorHandler);
 
   return app;
 };
