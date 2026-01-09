@@ -1,8 +1,8 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
-import fs from "fs";
-import path from "path";
 import swaggerUi from "swagger-ui-express";
-import { fileURLToPath } from "url";
 import YAML from "yamljs";
 import { protect } from "./middleware/auth.js";
 import { globalErrorHandler } from "./middleware/errorHandler.js";
@@ -17,20 +17,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const swaggerPath = path.resolve(__dirname, "swagger.yaml");
 
-console.log("-----------------------------------------");
-console.log("Searching for Swagger file at:", swaggerPath);
-
 if (!fs.existsSync(swaggerPath)) {
-  console.log(
-    "CRITICAL ERROR: The file 'swagger.yaml' is NOT in the root folder!"
-  );
-  console.log(
-    "Make sure it is inside: C:\\Users\\USER-PC\\Desktop\\lmsbackend\\LMS-backend\\"
-  );
-  console.log("-----------------------------------------");
+  console.log("CRITICAL ERROR: The file 'swagger.yaml' is NOT in found");
 }
 
-const swaggerDocument = YAML.load(swaggerPath);
+let swaggerDocument;
+try {
+  swaggerDocument = YAML.load(swaggerPath);
+} catch (err) {
+  console.error("Failed to load swagger.yaml:", err.message);
+}
 
 const createApp = () => {
   const app = express();
@@ -42,17 +38,14 @@ const createApp = () => {
 
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   app.use("/api/auth", authRoutes);
+
+  /*
+   * all routes before this middleware are unprotected
+   * all routes after this middleware are protected
+   */
   app.use(protect);
-<<<<<<< HEAD
 
   // RBAC Protected Routes
-=======
-<<<<<<< HEAD
-=======
-
-  // RBAC Protected Routes
->>>>>>> upstream/main
->>>>>>> main
   app.use("/api/admin", adminRoutes);
   app.use("/api/books", bookRoutes);
   app.use("/api/reports", reportRoutes);
